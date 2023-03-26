@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema xmlns="http://www.w3.org/2001/XMLSchema" targetNamespace="http://www.dei.isep.ipp.pt/tap-2023"
+        xmlns:tns="http://www.dei.isep.ipp.pt/tap-2023" elementFormDefault="qualified">
+    <element name="agenda" type="tns:agendaType"/>
+    <complexType name="agendaType">
+        <sequence>
+            <element type="tns:aircraftsType" name="aircrafts"/>
+            <element type="tns:runwaysType" name="runways"/>
+        </sequence>
+        <attribute type="positiveInteger" name="maximumDelayTime" use="required"/>
+    </complexType>
+    <complexType name="aircraftsType">
+        <sequence>
+            <element type="tns:aircraftType" name="aircraft" maxOccurs="unbounded"/>
+        </sequence>
+    </complexType>
+    <complexType name="runwaysType">
+        <sequence>
+            <element type="tns:runwayType" name="runway" maxOccurs="unbounded"/>
+        </sequence>
+    </complexType>
+    <complexType name="aircraftType">
+        <simpleContent>
+            <extension base="string">
+                <attribute type="string" name="id" use="required"/>
+                <attribute type="tns:classType" name="class" use="required"/>
+                <attribute type="nonNegativeInteger" name="target" use="required"/>
+                <attribute type="positiveInteger" name="emergency" use="optional"/>
+            </extension>
+        </simpleContent>
+    </complexType>
+    <complexType name="runwayType">
+        <sequence>
+            <element type="tns:handlesType" name="handles" maxOccurs="unbounded"/>
+        </sequence>
+        <attribute type="string" name="id" use="required"/>
+    </complexType>
+    <complexType name="handlesType">
+        <simpleContent>
+            <extension base="string">
+                <attribute type="tns:classType" name="class"/>
+            </extension>
+        </simpleContent>
+    </complexType>
+    <simpleType name="classType">
+        <restriction base="byte">
+            <minInclusive value="1"/>
+            <maxInclusive value="6"/>
+        </restriction>
+    </simpleType>
+</schema>

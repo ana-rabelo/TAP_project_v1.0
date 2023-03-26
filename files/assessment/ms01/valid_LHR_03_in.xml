@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<agenda maximumDelayTime="900" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns="http://www.dei.isep.ipp.pt/tap-2023"
+        xsi:schemaLocation="http://www.dei.isep.ipp.pt/tap-2023 ../../agenda.xsd">
+    <aircrafts>
+        <aircraft id="Aircraft1"  class="4" target="0" />
+        <aircraft id="Aircraft2"  class="5" target="47" />
+        <aircraft id="Aircraft4"  class="3" target="62" />
+        <aircraft id="Aircraft5"  class="5" target="72" />
+        <aircraft id="Aircraft6"  class="1" target="138" />
+        <aircraft id="Aircraft7"  class="6" target="143" />
+        <aircraft id="Aircraft3"  class="1" target="150" />
+        <aircraft id="Aircraft8"  class="4" target="159" />
+        <aircraft id="Aircraft9"  class="2" target="191" />
+        <aircraft id="Aircraft10" class="6" target="229" />
+        <aircraft id="Aircraft11" class="2" target="241" />
+        <aircraft id="Aircraft12" class="2" target="258" />
+        <aircraft id="Aircraft13" class="3" target="282" />
+        <aircraft id="Aircraft14" class="4" target="324" />
+        <aircraft id="Aircraft15" class="5" target="331" />
+        <aircraft id="Aircraft16" class="5" target="386" />
+        <aircraft id="Aircraft17" class="1" target="407" />
+        <aircraft id="Aircraft18" class="2" target="443" />
+        <aircraft id="Aircraft19" class="3" target="502" />
+        <aircraft id="Aircraft20" class="6" target="590" />
+        <aircraft id="Aircraft21" class="5" target="600" />
+        <aircraft id="Aircraft22" class="2" target="710" />
+        <aircraft id="Aircraft23" class="5" target="714" />
+        <aircraft id="Aircraft24" class="3" target="743" />
+        <aircraft id="Aircraft25" class="2" target="787" />
+        <aircraft id="Aircraft26" class="6" target="812" />
+        <aircraft id="Aircraft27" class="4" target="883" />
+        <aircraft id="Aircraft28" class="3" target="965" />
+        <aircraft id="Aircraft29" class="3" target="984" />
+        <aircraft id="Aircraft30" class="6" target="992" />
+        <aircraft id="Aircraft31" class="2" target="1005" />
+        <aircraft id="Aircraft32" class="2" target="1039" />
+        <aircraft id="Aircraft33" class="1" target="1135" />
+        <aircraft id="Aircraft34" class="2" target="1200" />
+        <aircraft id="Aircraft35" class="6" target="1241" />
+        <aircraft id="Aircraft36" class="5" target="1247" />
+        <aircraft id="Aircraft37" class="2" target="1297" />
+        <aircraft id="Aircraft38" class="5" target="1320" />
+        <aircraft id="Aircraft39" class="6" target="1347" />
+        <aircraft id="Aircraft40" class="6" target="1377" />
+        <aircraft id="Aircraft41" class="6" target="1439" />
+        <aircraft id="Aircraft42" class="2" target="1479" />
+        <aircraft id="Aircraft43" class="3" target="1531" />
+        <aircraft id="Aircraft44" class="5" target="1545" />
+        <aircraft id="Aircraft45" class="5" target="1565" />
+        <aircraft id="Aircraft46" class="3" target="1581" />
+        <aircraft id="Aircraft47" class="1" target="1721" />
+        <aircraft id="Aircraft48" class="3" target="1797" />
+    </aircrafts>
+
+    <runways>
+        <runway id="Northern Runway">
+            <handles class="1"/>
+            <handles class="2"/>
+            <handles class="3"/>
+            <handles class="4"/>
+            <handles class="5"/>
+            <handles class="6"/>
+        </runway>
+        <runway id="Southern Runway">
+            <handles class="1"/>
+            <handles class="2"/>
+            <handles class="3"/>
+        </runway>
+    </runways>
+</agenda>

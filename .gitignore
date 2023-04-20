@@ -50,3 +50,23 @@ Thumbs.db
 
 # SBT
 .bsp/
+
+# Scala
+.metals/
+.ammonite/
+metals.sbt
+metals/project/
+
+# VS Code
+.vscode/
+
+.cache
+.history
+.lib/
+dist/*
+target/
+lib_managed/
+src_managed/
+project/boot/
+project/plugins/project/
+**/.bloop

@@ -2,6 +2,7 @@
 <schema xmlns="http://www.w3.org/2001/XMLSchema" targetNamespace="http://www.dei.isep.ipp.pt/tap-2023"
         xmlns:tns="http://www.dei.isep.ipp.pt/tap-2023" elementFormDefault="qualified">
     <element name="agenda" type="tns:agendaType"/>
+
     <complexType name="agendaType">
         <sequence>
             <element type="tns:aircraftsType" name="aircrafts"/>
@@ -9,16 +10,19 @@
         </sequence>
         <attribute type="positiveInteger" name="maximumDelayTime" use="required"/>
     </complexType>
+    
     <complexType name="aircraftsType">
         <sequence>
             <element type="tns:aircraftType" name="aircraft" maxOccurs="unbounded"/>
         </sequence>
     </complexType>
+    
     <complexType name="runwaysType">
         <sequence>
             <element type="tns:runwayType" name="runway" maxOccurs="unbounded"/>
         </sequence>
     </complexType>
+    
     <complexType name="aircraftType">
         <simpleContent>
             <extension base="string">
@@ -29,12 +33,14 @@
             </extension>
         </simpleContent>
     </complexType>
+    
     <complexType name="runwayType">
         <sequence>
             <element type="tns:handlesType" name="handles" maxOccurs="unbounded"/>
         </sequence>
         <attribute type="string" name="id" use="required"/>
     </complexType>
+    
     <complexType name="handlesType">
         <simpleContent>
             <extension base="string">
@@ -42,10 +48,12 @@
             </extension>
         </simpleContent>
     </complexType>
+    
     <simpleType name="classType">
         <restriction base="byte">
             <minInclusive value="1"/>
             <maxInclusive value="6"/>
         </restriction>
     </simpleType>
+    
 </schema>

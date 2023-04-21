@@ -1,15 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <schema xmlns="http://www.w3.org/2001/XMLSchema" targetNamespace="http://www.dei.isep.ipp.pt/tap-2023" xmlns:tns="http://www.dei.isep.ipp.pt/tap-2023"  elementFormDefault="qualified">
   <element name="schedule" type="tns:scheduleType"/>
+  
   <complexType name="scheduleType">
     <sequence>
       <element type="tns:aircraftType" name="aircraft" maxOccurs="unbounded"/>
     </sequence>
     <attribute type="nonNegativeInteger" name="cost" use="required"/>
   </complexType>
+  
   <complexType name="aircraftType">
     <attribute type="string" name="id" use="required"/>
     <attribute type="nonNegativeInteger" name="time" use="required"/>
     <attribute type="string" name="runway" use="required"/>
   </complexType>
+  
 </schema>

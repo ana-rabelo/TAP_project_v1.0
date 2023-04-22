@@ -1,4 +1,4 @@
-package pj.domain.entity
+package pj.domain.aircraft
 
 import pj.domain.SimpleTypes.*
 import pj.domain.aircraft.ClassNumber

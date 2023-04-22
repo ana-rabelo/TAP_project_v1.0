@@ -1,4 +1,4 @@
-package pj.domain.entity
+package pj.domain.agenda
 
 import pj.domain.SimpleTypes.*
 import pj.domain.aircraft.*

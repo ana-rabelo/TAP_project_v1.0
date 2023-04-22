@@ -1,16 +1,16 @@
 package pj.io
 
-import pj.domain.entity.*
+import pj.domain.runway.Runway
+import pj.domain.aircraft.Aircraft
+import pj.domain.agenda.Agenda
+import pj.domain.SimpleTypes.positiveInteger
+import pj.domain.aircraft.{Class1, Class2, Class3, Class4, Class5, Class6, ClassNumber}
 import pj.domain.DomainError.*
 import pj.domain.Result
 import pj.xml.XML.*
 
 import scala.util.Try
 import scala.xml.*
-
-final case class Aircraft(id: String, classNumber: ClassNumber, targetTime: Long, emergency: Option[Int])
-final case class Runway(id: String, handles: Set[ClassNumber])
-final case class Agenda(aircrafts: List[Aircraft], runways: List[Runway], maximumDelayTime: Int)
 
 /**
  *  determine which ClassNumber corresponds to the string in the xml file
@@ -49,9 +49,11 @@ private def parseAircraft(xml: Node): Result[Aircraft] =
     }
 
     target <- fromAttribute(xml, "target").map(_.toInt)
-    emergency <- Right(fromAttribute(xml, "emergency").map(_.toInt).toOption)
+    emergency <- Right(fromAttribute(xml, "emergency")
+                      .flatMap(s => positiveInteger.from(s.trim.toInt)).toOption)
 
-} yield Aircraft(id, classNumber, target, emergency)
+
+} yield (Aircraft(id, classNumber, target, emergency))
 
 /**
   * extracts information from the XML file to create a runway object
@@ -76,7 +78,7 @@ def parseRunway(xml: Node): Result[Runway] =
   */
 private def parseAgenda(xml: Node): Result[Agenda] =
   for {
-    maximumDelayTime <- fromAttribute(xml, "maximumDelayTime").map(_.toInt)
+    maximumDelayTime <- fromAttribute(xml, "maximumDelayTime").flatMap(s => positiveInteger.from(s.trim.toInt))
     aircrafts <- traverse((xml \ "aircrafts" \ "aircraft").toList, parseAircraft)
     runways <- traverse((xml \ "runways" \ "runway").toList, parseRunway)
 

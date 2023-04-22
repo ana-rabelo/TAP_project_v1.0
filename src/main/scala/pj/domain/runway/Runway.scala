@@ -1,4 +1,6 @@
-package pj.domain.entity
+package pj.domain.runway
+
+import pj.domain.aircraft.ClassNumber
 
 /**
 * Represents the physical runway

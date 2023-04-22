@@ -1,6 +1,10 @@
 package pj.domain.entity
 
 import pj.domain.SimpleTypes.*
+import pj.domain.aircraft.*
+import pj.domain.runway.*
+
+
 /**
  * Represents the Aircrafts to operate and available Runways.
  * 

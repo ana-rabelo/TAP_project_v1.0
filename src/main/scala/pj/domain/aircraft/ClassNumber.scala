@@ -1,4 +1,4 @@
-package pj.domain.entity
+package pj.domain.aircraft
 
 sealed trait ClassNumber 
 

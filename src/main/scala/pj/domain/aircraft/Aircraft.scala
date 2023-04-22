@@ -1,6 +1,8 @@
 package pj.domain.entity
 
 import pj.domain.SimpleTypes.*
+import pj.domain.aircraft.ClassNumber
+
 /**
  * Represents the plane
  * 

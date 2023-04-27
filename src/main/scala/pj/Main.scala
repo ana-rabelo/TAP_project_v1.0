@@ -1,4 +1,5 @@
 import pj.io.readAgenda
+import pj.domain.schedule.ScheduleMS01
 
 object Main:
   def main(args: Array[String]): Unit =
@@ -6,4 +7,4 @@ object Main:
     
     agendaResult match
         case Left(error) => println(s"$error")
-        case Right(agenda) => println(s"Agenda: $agenda")
+        case Right(agenda) => ScheduleMS01.scheduleAgenda(agenda)

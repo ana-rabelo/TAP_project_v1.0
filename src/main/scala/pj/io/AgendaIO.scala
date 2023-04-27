@@ -37,23 +37,11 @@ private def parseAircraft(xml: Node): Result[Aircraft] =
   for {
 
     id <- fromAttribute(xml, "id")
-
-    classNumber <- fromAttribute(xml, "class").flatMap {
-      case "1" => Right(Class1)
-      case "2" => Right(Class2)
-      case "3" => Right(Class3)
-      case "4" => Right(Class4)
-      case "5" => Right(Class5)
-      case "6" => Right(Class6)
-      case _   => Left(XMLError("Invalid aircraft class"))
-    }
-
+    classNumber <- fromAttribute(xml, "class").flatMap(parseClassNumber)
     target <- fromAttribute(xml, "target").map(_.toInt)
-    emergency <- Right(fromAttribute(xml, "emergency")
-                      .flatMap(s => positiveInteger.from(s.trim.toInt)).toOption)
+    emergency <- Right(fromAttribute(xml, "emergency").flatMap(s => positiveInteger.from(s.toInt)).toOption)
 
-
-} yield (Aircraft(id, classNumber, target, emergency))
+} yield Aircraft(id, classNumber, target, emergency)
 
 /**
   * extracts information from the XML file to create a runway object
@@ -63,9 +51,10 @@ private def parseAircraft(xml: Node): Result[Aircraft] =
   */
 def parseRunway(xml: Node): Result[Runway] =
   for {
+    
     id <- fromAttribute(xml, "id")
     
-    // NOTE: not sure if this work
+    // NOTE: not sure if this work (ok for now)
     handles <- traverse((xml \ "handles").map(_. \@("class")), parseClassNumber).map(_.toSet)
 
   } yield Runway(id, handles)
@@ -78,7 +67,8 @@ def parseRunway(xml: Node): Result[Runway] =
   */
 private def parseAgenda(xml: Node): Result[Agenda] =
   for {
-    maximumDelayTime <- fromAttribute(xml, "maximumDelayTime").flatMap(s => positiveInteger.from(s.trim.toInt))
+
+    maximumDelayTime <- fromAttribute(xml, "maximumDelayTime").flatMap(s => positiveInteger.from(s.toInt))
     aircrafts <- traverse((xml \ "aircrafts" \ "aircraft").toList, parseAircraft)
     runways <- traverse((xml \ "runways" \ "runway").toList, parseRunway)
 
@@ -96,4 +86,3 @@ def readAgenda(filePath: String): Result[Agenda] =
     agenda <- parseAgenda(xml)
 
   } yield agenda
-

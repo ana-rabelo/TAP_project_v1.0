@@ -15,7 +15,7 @@ object FileIO:
    * @return an xml element if file exists or a domain error
    */
   def load(fn: String): Result[Elem] =
-    Try(XML.loadFile(fn)).fold(t => Left(IOFileProblem(t.getMessage)), xml => Right(xml))
+    Try(XML.loadFile(fn)).fold(t => Left(IOFileProblem(s"File not found: ${fn}")), xml => Right(xml))
 
   /** load xml by file
    *
@@ -23,7 +23,7 @@ object FileIO:
    * @return an xml element if file exists or a domain error
    */
   def load(f: File): Result[Elem] =
-    Try(XML.loadFile(f)).fold(t => Left(IOFileProblem(t.getMessage)), xml => Right(xml))
+    Try(XML.loadFile(f)).fold(t => Left(IOFileProblem(s"File not found: ${f}")), xml => Right(xml))
   
   /** load xml error file by filename
    *
@@ -47,4 +47,7 @@ object FileIO:
    */
   def save(fname: String, xml: Elem): Unit =
     val prettyXml = normalizer.format(xml)
-    new PrintWriter(fname) { println("<?xml version='1.0' encoding=\"UTF-8\"?>"); println(prettyXml); close() }
+    new PrintWriter(fname): 
+      println("<?xml version='1.0' encoding=\"UTF-8\"?>"); 
+      println(prettyXml); 
+      close() 

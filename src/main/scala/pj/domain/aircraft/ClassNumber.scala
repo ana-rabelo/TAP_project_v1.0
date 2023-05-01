@@ -19,3 +19,9 @@ case object Class5 extends ClassNumber
 
 /* 6 - Take-off and Heavy */
 case object Class6 extends ClassNumber
+
+/* None */
+case object None extends ClassNumber
+
+object ClassNumber:
+    val empty: ClassNumber = None

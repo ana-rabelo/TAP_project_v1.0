@@ -12,10 +12,9 @@ object SimpleTypes :
     object positiveInteger:
         def from(value: Int): Result[positiveInteger] =
             if(value > 0) Right(value) else Left(InvalidPositiveInteger(value))
-        
         def to(value: positiveInteger): Int = value
 
-        def toLong(value: positiveInteger): Long = value.toLong
+        val zero: positiveInteger = positiveInteger.from(0).getOrElse(0)
 
     opaque type nonNegativeInteger = Int
     object nonNegativeInteger:

@@ -10,3 +10,7 @@ import pj.domain.aircraft.ClassNumber
  * An aircraft can issue an emergency, which reduces its maximum delay time
  */
 final case class Aircraft(id: String, classNumber: ClassNumber, targetTime: Long, emergency: Option[positiveInteger])
+
+object Aircraft{
+    val empty: Aircraft = Aircraft("", ClassNumber.empty, 0L, positiveInteger.from(0).toOption)
+}

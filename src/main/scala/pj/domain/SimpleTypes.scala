@@ -14,7 +14,9 @@ object SimpleTypes :
             if(value > 0) Right(value) else Left(InvalidPositiveInteger(value))
         
         def to(value: positiveInteger): Int = value
-    
+
+        def toLong(value: positiveInteger): Long = value.toLong
+
     opaque type nonNegativeInteger = Int
     object nonNegativeInteger:
         def from(value: Int): Result[nonNegativeInteger] =

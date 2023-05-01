@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<agenda maximumDelayTime="900">
+    <aircrafts>
+        <aircraft id="A1" class="8" target="1"/>
+        <aircraft id="A2" class="2" target="15"/>
+    </aircrafts>
+    <runways>
+        <runway id="R1">
+            <handles class="1"/>
+            <handles class="2"/>
+        </runway>
+        <runway id="R2">
+            <handles class="1"/>
+            <handles class="5"/>
+        </runway>
+    </runways>
+</agenda>

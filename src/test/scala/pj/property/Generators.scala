@@ -46,3 +46,37 @@ object Generators:
             .map(_.zipWithIndex)
         } yield list.map { case (aircraft, index) => aircraft.copy(id + ((index + 1).toString))
     }
+    
+    /** Generates a number of ClassNumber to runway handles */
+    //TODO: can't be empty
+    def handlesGen(aircrafts: List[Aircraft]): Gen[Set[ClassNumber]] = for {
+        classes <- Gen.pick(
+            aircrafts.map(_.classNumber).distinct.size,
+            if (aircrafts.isEmpty) classes
+            else aircrafts.map(_.classNumber).distinct
+        )
+    } yield classes.toSet
+
+    /** Generates a runway id prefix */
+    val idRunwayGen: Gen[String] =
+        Gen.oneOf("Runway", "R", "")
+
+    /** Generates a runway with a id and handles set of ClassNumber */
+    def runwayGen(id: String, aircrafts: List[Aircraft]): Gen[Runway] = for {
+        handles <- handlesGen(aircrafts)
+    } yield Runway(id, handles)
+
+    def listRunwayGen(aircrafts: List[Aircraft]): Gen[Seq[Runway]] =
+    /* id <- idRunwayGen
+            n <- Gen.chooseNum(1, 5)
+            list <- Gen
+            .listOfN(n, runwayGen(id))
+            .map(_.zipWithIndex)
+        } yield list.map { case (runway, index) => runway.copy(id + ((index + 1).toString))} */
+        Gen.sequence[Seq[Runway], Runway]((1 until aircrafts.size).map(id => runwayGen(id.toString(), aircrafts)))
+
+    val agendaGen: Gen[Agenda] = for {
+        maximumDelayTime <- Gen.choose(800, 1200).map((x: Int) => positiveInteger.from(x).getOrElse(positiveInteger.zero))
+        aircrafts <- listAircraftGen
+        runways <- listRunwayGen(aircrafts)
+    } yield Agenda(aircrafts, runways.toList, maximumDelayTime)

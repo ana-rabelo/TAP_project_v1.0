@@ -16,7 +16,10 @@ object Generators:
     val classNumberGen: Gen[ClassNumber] =
         Gen.oneOf(classes)
 
-    /** Generates a aircraft emergency value between 5 and 10 */
+    /** Generates a aircraft emergency value between 5 and 10 
+     * For v.1.0 the frequency of emergency aircrafts is 0
+    */
+
     val aircraftEmergencyGen: Gen[Option[positiveInteger]] =
         Gen.frequency(
             (10, Gen.const(None)),
@@ -28,9 +31,7 @@ object Generators:
         Gen.oneOf("Aircraft", "A", "")
 
     /** Generates a aircraft with a id, classNumber, targetTime and emergency option
-     * value The emergency value is generated with a frequency of 7/10 for None and
-     * 3/10 for Some
-     */
+     * value */
     def aircraftGen(id: String): Gen[Aircraft] = for {
         classNumber <- classNumberGen
         targetTime <- Gen.choose(0, 200)
@@ -67,12 +68,6 @@ object Generators:
     } yield Runway(id, handles)
 
     def listRunwayGen(aircrafts: List[Aircraft]): Gen[Seq[Runway]] =
-    /* id <- idRunwayGen
-            n <- Gen.chooseNum(1, 5)
-            list <- Gen
-            .listOfN(n, runwayGen(id))
-            .map(_.zipWithIndex)
-        } yield list.map { case (runway, index) => runway.copy(id + ((index + 1).toString))} */
         Gen.sequence[Seq[Runway], Runway]((1 until aircrafts.size).map(id => runwayGen(id.toString(), aircrafts)))
 
     val agendaGen: Gen[Agenda] = for {

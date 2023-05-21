@@ -2,8 +2,15 @@ package pj.domain.schedule
 
 import scala.xml.Elem
 import scala.xml.*
+
 import pj.domain.Result
+import pj.domain.DomainError.*
+import pj.domain.schedule.ScheduleAircrafts.scheduleAgenda
+import pj.domain.operation.*
+
 import pj.io.FileIO.save
+import pj.io.AgendaToXml.*
+import pj.io.OperationToXml.*
 
 object ScheduleMS01 extends Schedule:
 
@@ -14,5 +21,15 @@ object ScheduleMS01 extends Schedule:
    * @return a domain error or the xml wrapped in a Right object
    */
   def create(xml: Elem): Result[Elem] =
-    save("files/test/ms01/valid02_out.xml", xml)
-    Right(xml)
+    val agendaResult = readAgenda(xml)
+
+    agendaResult match
+        case Left(error) => 
+          agendaErrorToXml(error)
+
+        case Right(agenda) => 
+          val operations = scheduleAgenda(agenda)
+          
+          operations match
+            case Left(error) => errorToXml(error)
+            case Right(schedule) => operationsToXml(schedule)

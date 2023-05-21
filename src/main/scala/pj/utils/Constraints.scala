@@ -101,6 +101,7 @@ object Constraints:
      * 
      * @return a map with the minimum separation and the aircrafts class numbers
      */
+    //TODO: implement the matrix with the values
     def getSepOp(trailing: ClassNumber, leading: ClassNumber): Map[(ClassNumber, ClassNumber), Long] = Map (
         (Class1, Class1) -> 82,
         (Class1, Class2) -> 131,

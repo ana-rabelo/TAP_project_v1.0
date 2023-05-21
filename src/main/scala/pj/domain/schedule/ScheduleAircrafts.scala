@@ -8,9 +8,11 @@ import pj.domain.Result
 import pj.domain.aircraft.Aircraft
 import pj.domain.runway.Runway
 import pj.utils.Constraints.*
+import pj.domain.operation.*
 
 import scala.collection.immutable.Queue
 import scala.xml.Elem
+import scala.util.matching.Regex
 
 final case class ScheduleAircrafts(operations: List[Operation])
 
@@ -20,16 +22,17 @@ object ScheduleAircrafts:
    * Schedule the aircrafts in the agenda.
    * 
    * @param agenda the agenda with the aircrafts to schedule, the runways and the maximum delay time
-   * @return a domain error or the xml wrapped
+   * @return a domain error or the ScheduleAircrafts object
    */
-  def scheduleAgenda(agenda: Agenda): Result[Elem] =
+  def scheduleAgenda(agenda: Agenda): Result[ScheduleAircrafts] =
     val aircrafts = agenda.aircrafts.sortBy(_.targetTime)
     val runways = agenda.runways
     val maxDelayTime = positiveInteger.to(agenda.maximumDelayTime)
 
-    allocateRunways(aircrafts, runways, maxDelayTime) match
-      case Left(_) => Left(ScheduleError("Error creating schedule."))
-      case Right(listOperations) => Operation.operationsToXml(ScheduleAircrafts(listOperations))
+    allocateRunways(aircrafts, runways, maxDelayTime).fold(
+      error => Left(error),
+      listOperations => Right(ScheduleAircrafts(listOperations))
+    )
 
   /**
    * Allocate the runways to the aircrafts.
@@ -48,12 +51,11 @@ object ScheduleAircrafts:
     val runwayQueue: Queue[Runway] = Queue(runways*)
 
     val listOperations = allocateHelper(aircraftQueue, runwayQueue, List.empty[Operation], aircraftQueue.front.targetTime, maxDelayTime, 0L)
-    println(listOperations)
 
-    if (listOperations.isEmpty) Left(NoRunwaysAvailable(aircraftQueue.length))
-    else (Right(listOperations.reverse))
-
-
+    listOperations.fold(
+      error => Left(error),
+      operations => Right(operations.reverse)
+    )
   /**
    * Get the maximum window time for the aircraft.
    * 
@@ -87,7 +89,6 @@ object ScheduleAircrafts:
       val timeDiff = calculateSeparation(prevAircraft, aircraft)
       val sepMin = getSepOp(aircraft.classNumber, operation.aircraft.classNumber)((aircraft.classNumber), (operation.aircraft.classNumber))
       val timeRunway = prevAircraft.targetTime
-      val cost = prevAircraft.targetTime - currentTime
 
       (timeDiff >= sepMin) && (currentTime > timeRunway)
     }
@@ -102,14 +103,14 @@ object ScheduleAircrafts:
    * 
    * @return the list of available runways
    */
-  def getAvailableRunwaysForAircraft(aircraft: Aircraft, operations: List[Operation], runways: Queue[Runway], currentTime: Long): List[(Runway, Long)] =
+  def getAvailableRunwaysForAircraft(aircraft: Aircraft, operations: List[Operation], runways: Queue[Runway], currentTime: Long): Queue[(Runway, Long)] =
     runways.flatMap { runway =>
-      if (isRunwayAvailableForAircraft(runway, aircraft, operations, currentTime))
+      if (isRunwayAvailableForAircraft(runway, aircraft, operations, currentTime) )
         val delay = aircraft.targetTime - currentTime
         Some((runway, delay))
       else
         None
-    }.toList
+    }
 
   /* private def allocateAircraft(aircraft: Aircraft, availableRunways: List[(Runway, Long)], operations: List[Operation]): Option[List[Operation]] =
     availableRunways.minByOption(_._2).map { case (runway, delay) =>
@@ -128,9 +129,10 @@ object ScheduleAircrafts:
    * 
    * @return the list of operations
    */
-  private def allocateEmergencyAircraft(aircraft: Aircraft, operations: List[Operation], runways: Queue[Runway], aircrafts: Queue[Aircraft], maxDelayTime: Int): List[Operation] =
+  private def allocateEmergencyAircraft(aircraft: Aircraft, operations: List[Operation], runways: Queue[Runway], aircrafts: Queue[Aircraft], maxDelayTime: Int): Result[List[Operation]] =
     val (lastOperation, newOperations) = reverseOperation(operations.reverse)
     val newAircraftQueue = insertFirst(aircrafts, lastOperation.aircraft)
+
     allocateHelper(insertFirst(newAircraftQueue, aircraft), runways, newOperations, aircraft.targetTime, maxDelayTime, 0L)
 
   /**
@@ -144,13 +146,22 @@ object ScheduleAircrafts:
    * 
    * @return the list of operations
    */ 
-  private def allocateNonEmergencyAircraft(aircraft: Aircraft, operations: List[Operation], runways: Queue[Runway], aircrafts: Queue[Aircraft], maxDelayTime: Int): List[Operation] =
-    val currentTargetTime = getSmallSep(aircraft, operations, runways) + aircraft.targetTime
-    val delay = currentTargetTime - aircraft.targetTime
-    val aircraftDelay = Aircraft(aircraft.id, aircraft.classNumber, currentTargetTime, aircraft.emergency)
-    allocateHelper(insertFirst(aircrafts, aircraftDelay), runways, operations, aircraftDelay.targetTime, maxDelayTime, delay)
+  private def allocateNonEmergencyAircraft(aircraft: Aircraft, operations: List[Operation], runways: Queue[Runway], aircrafts: Queue[Aircraft], maxDelayTime: Int): Result[List[Operation]] =
+    if (!runways.isEmpty)
+      val currentTargetTime = getSmallSep(aircraft, operations, runways) + aircraft.targetTime
+      val delay = currentTargetTime - aircraft.targetTime
+      val cost = calculatePenalty(aircraft.classNumber, delay)
+      val aircraftDelay = Aircraft(aircraft.id, aircraft.classNumber, currentTargetTime, aircraft.emergency)
+      
+      allocateHelper(insertFirst(aircrafts, aircraftDelay), runways, operations, aircraftDelay.targetTime, maxDelayTime, cost)
+    else
+      Left(NoRunwaysAvailable(getClassNumber(aircraft.classNumber.toString())))
 
-
+    //TODO: Include description
+  private def getClassNumber(classNumber: String): String =
+    val regex: Regex = """\d+""".r
+    regex.findFirstIn(classNumber).getOrElse("")
+    
   /** 
    * Recursive function to allocate the queue of aircrafts.
    * 
@@ -168,10 +179,11 @@ object ScheduleAircrafts:
                     operations: List[Operation], 
                     currentTime: Long, 
                     maxDelayTime: Int,
-                    cost: Long): List[Operation] =
-                      
+                    cost: Long): Result[List[Operation]] =
+    
     aircrafts.dequeueOption match
-      case None => operations
+      case None => 
+        Right(operations)
 
       case Some((newAircraft, remainingAircrafts)) =>
         val maxWindowTime = if (newAircraft.emergency.isDefined) 
@@ -184,22 +196,28 @@ object ScheduleAircrafts:
           val bestRunway = availableRunways.minByOption(_._2).map(_._1) // find the available runway with the minimum delay
           
           bestRunway match
-            case Some(runway) =>
+            case Some(runway) if isAircraftCompatibleWithRunway(newAircraft, runway) =>
               //val delay = newAircraft.targetTime - currentTime
               val allocation = Operation(newAircraft, runway, newAircraft.targetTime, cost)
               allocateHelper(remainingAircrafts, runways, allocation :: operations, newAircraft.targetTime, maxDelayTime, 0L)
 
+            case Some(_) =>
+              availableRunways.map(_._1).dequeueOption match
+                  case Some(runway, runways) =>
+                    //TODO: try with allocateHelper               
+                    //allocateNonEmergencyAircraft(newAircraft, operations, runways, remainingAircrafts, maxDelayTime)
+                    allocateHelper(insertFirst(remainingAircrafts.reverse, newAircraft), runways, operations, newAircraft.targetTime, maxDelayTime, 0L)                  
+                  case None =>
+                    Left(NoRunwaysAvailable(getClassNumber(newAircraft.classNumber.toString())))
+
             case None =>
               if(newAircraft.emergency.isDefined)
-                allocateEmergencyAircraft(newAircraft, operations, runways, remainingAircrafts, maxDelayTime) 
+                allocateEmergencyAircraft(newAircraft, operations, runways, remainingAircrafts, maxDelayTime)
               else 
                 allocateNonEmergencyAircraft(newAircraft, operations, runways, remainingAircrafts, maxDelayTime)
         
         else if (currentTime > maxWindowTime)
-          MaximumTimeWindowExceeded(newAircraft.id,maxWindowTime)
-          operations
+          Left(MaximumTimeWindowExceeded(newAircraft.id, maxWindowTime))
         
         else
           allocateHelper(insertFirst(remainingAircrafts.reverse, newAircraft), runways, operations, newAircraft.targetTime, maxDelayTime, 0L)
-
-

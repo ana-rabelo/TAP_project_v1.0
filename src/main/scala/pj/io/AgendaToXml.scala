@@ -11,11 +11,12 @@ import pj.xml.XML.*
 
 import scala.util.Try
 import scala.xml.*
+import pj.domain.DomainError
 
 /**
  *  extracts information from the XML file to create an agenda object
  */
-object AgendaIO:
+object AgendaToXml:
 
   /**
    *  determine which ClassNumber corresponds to the string in the xml file
@@ -75,7 +76,22 @@ object AgendaIO:
       aircrafts <- traverse((xml \ "aircrafts" \ "aircraft").toList, parseAircraft)
       runways <- traverse((xml \ "runways" \ "runway").toList, parseRunway)
 
+      _ <- validateAircraftId(aircrafts)
+      _ <- validatRunwaysId(runways)
+
     } yield Agenda(aircrafts, runways, maximumDelayTime)
+
+  def validateAircraftId(aircraftsId: List[Aircraft]): Result[Unit] =
+    val duplicateIds = aircraftsId.groupBy(_.id).collect { case (id, list) if list.sizeIs > 1  => id }
+
+    if (duplicateIds.isEmpty) Right(())
+    else Left(RepeatedAircraftId(duplicateIds.head))
+
+  def validatRunwaysId(runwaysId: List[Runway]): Result[Unit] =
+    val duplicateIds = runwaysId.groupBy(_.id).collect { case (id, list) if list.sizeIs > 1 => id }
+
+    if (duplicateIds.isEmpty) Right(())
+    else Left(RepeatedRunwayId(duplicateIds.head))
 
   /**
    * reads the agenda from the xml file
@@ -83,8 +99,22 @@ object AgendaIO:
    * @param filePath the path to the xml file
    * @return the parsed agenda object or a domain error
    */
-  def readAgenda(filePath: String): Result[Agenda] =
+  def readAgenda(xml: Elem): Result[Agenda] =
     for {
-      xml <- FileIO.load(filePath)
       agenda <- parseAgenda(xml)
     } yield agenda
+
+  def agendaErrorToXml(error: DomainError): Result[Elem] =
+    val errorXml = new UnprefixedAttribute("message", error.toString(), xml.Null)
+    val schemaLocationAttrError = new PrefixedAttribute("xsi", "schemaLocation", "http://www.dei.isep.ipp.pt/tap-2023 ../../scheduleError.xsd ", errorXml)
+    val xmlnsXsiAttr = new UnprefixedAttribute("xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance", schemaLocationAttrError)
+    val xmlnsAttr = new UnprefixedAttribute("xmlns", "http://www.dei.isep.ipp.pt/tap-2023", xmlnsXsiAttr)
+
+    val scheduleElem = Elem(null, "ScheduleError", xmlnsAttr, TopScope, minimizeEmpty = true)
+    
+    val printer = new PrettyPrinter(80, 3).format(scheduleElem)
+    val formattedScheduleElem = Utility.trim(scheduleElem)
+    val xmlString = printer.format(formattedScheduleElem)
+
+    Right(XML.loadString(xmlString))
+    
